@@ -1,7 +1,8 @@
 package com.traffic.search
 
 import com.common.Pools
-import org.apache.hadoop.hbase.client.{BufferedMutator, Connection => HbaseConnection}
+import org.apache.hadoop.hbase.client.{BufferedMutator, Put, Connection => HbaseConnection}
+import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HColumnDescriptor, HTableDescriptor, TableName}
 import org.elasticsearch.action.bulk.{BackoffPolicy, BulkProcessor, BulkRequest, BulkResponse}
 import org.elasticsearch.client.Client
@@ -28,7 +29,7 @@ class SearchHBaseElasticsearch extends Pools {
   var rowkey = 0;
 
 
-  def clienttestxpack(): Unit = {
+  def clienttestxpack(): Unit ={
     val se = clientElastic.prepareGet(".kibana", "index-pattern", ".kibana").get()
     println(se.getSource)
   }
@@ -49,36 +50,110 @@ class SearchHBaseElasticsearch extends Pools {
   def putDataHBaseElsaticserach(): Unit = {
     val bulkrequest = clientElastic.prepareBulk()
     val bulkProcessor = BulkES(clientElastic)
-    //      bulkProcessor.add(new IndexRequest("twitter", "tweet").source(XContentFactory.jsonBuilder().startObject()
-    //        .field("ResultTime", time)
-    //        .field("PlateColor", platecolor)
-    //        .field("Direction", 0)
-    //        .field("VehicleBrand", plate)
-    //        .field("tag", 1)
-    //        .field("drop", 1)
-    //        .field("secondBelt", 1)
-    //        .field("call", 0)
-    //        .field("crash", 0)
-    //        .field("danger", 0)
-    //        .field("paper", 0)
-    //        .field("sun", 0)
-    //        .field("resultRowkey", rowkey)
-    //        .field("taskId", "007")
-    //        .field("cameraId", "007")
-    //        .field("datasourceId", "007")
-    //        .endObject().string));
+    for (j <- 1 to 1000) {
+      val mon = month(ran.nextInt(12))
+      val time = "2017-" + mon + "-" + ran.nextInt(30) + " " + hour(ran.nextInt(12)) + ":23:12"
+      val platecolor = color(ran.nextInt(4))
+      val plate = pla(ran.nextInt(10))
+      rowkey += 1
+
+      //      bulkProcessor.add(new IndexRequest("twitter", "tweet").source(XContentFactory.jsonBuilder().startObject()
+      //        .field("ResultTime", time)
+      //        .field("PlateColor", platecolor)
+      //        .field("Direction", 0)
+      //        .field("VehicleBrand", plate)
+      //        .field("tag", 1)
+      //        .field("drop", 1)
+      //        .field("secondBelt", 1)
+      //        .field("call", 0)
+      //        .field("crash", 0)
+      //        .field("danger", 0)
+      //        .field("paper", 0)
+      //        .field("sun", 0)
+      //        .field("resultRowkey", rowkey)
+      //        .field("taskId", "007")
+      //        .field("cameraId", "007")
+      //        .field("datasourceId", "007")
+      //        .endObject().string));
 
 
-    // Elastic
-    bulkrequest.add(clientElastic.prepareIndex("wh", "wh").setSource(
-      XContentFactory.jsonBuilder().startObject()
-        .field("remote_addr", "59.175.137.251")
-        .field("time_local", "2016-02-23 11:47；００")
-        .field("server_name", 0)
-        .field("request", "ew")
-        .field("request_length", 1)
-        .endObject().string))
+      // Elastic
+      bulkrequest.add(clientElastic.prepareIndex("djj", "djj").setSource(
+        XContentFactory.jsonBuilder().startObject()
+          .field("ResultTime", time)
+          .field("PlateColor", platecolor)
+          .field("Direction", 0)
+          .field("VehicleBrand", plate)
+          .field("tag", 1)
+          .field("drop", 1)
+          .field("secondBelt", 1)
+          .field("call", 0)
+          .field("crash", 0)
+          .field("danger", 0)
+          .field("paper", 0)
+          .field("sun", 0)
+          .field("resultRowkey", rowkey)
+          .field("taskId", "007")
+          .field("cameraId", "007")
+          .field("datasourceId", "007")
+          .endObject().string))
 
+      //HBase
+      val put: Put = new Put(Bytes.toBytes(rowkey + ""))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("taskid"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("cameraId"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("License"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LicenseAttribution"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("PlateColor"), Bytes.toBytes(platecolor))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("PlateType"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("Confidence"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("Bright"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("Direction"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LocationLeft"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LocationTop"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LocationRight"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LocationBottom"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("CostTime"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("CarBright"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("CarColor"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("CarLogo"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("ImagePath"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("ImageURL"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("ResultTime"), Bytes.toBytes(time))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("CreateTime"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("frame_index"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("carspeed"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("LabelInfoData"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleKind"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleBrand"), Bytes.toBytes(plate))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleSeries"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleStyle"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("tag"), Bytes.toBytes(1))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("paper"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("sun"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("drop"), Bytes.toBytes(1))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("call"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("crash"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("danger"), Bytes.toBytes(0))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("mainBelt"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("secondBelt"), Bytes.toBytes(1))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleLeft"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleTop"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleRight"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleBootom"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleConfidence"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("face"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("face_url1"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("face_url2"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("vehicleUrl"), Bytes.toBytes("007"))
+      put.addColumn(Bytes.toBytes("Result"), Bytes.toBytes("fileName"), Bytes.toBytes("007"))
+      bufftable.mutate(put)
+      if (j % 100 == 0) {
+        bufftable.flush()
+        bulkrequest.execute().get()
+        println("-------------" + j)
+      }
+    }
   }
 
   def BulkES(client: Client): BulkProcessor = {
