@@ -102,8 +102,10 @@ class Search {
       "          }\n" + "        }\n" + "      }\n" + "    }\n" +
       "  }"
     //执行查询语句
+    val starttimes = System.currentTimeMillis()
     var response: SearchResponse = request.setQuery(QueryBuilders.wrapperQuery(qu))
-      .addSort("ResultTime", SortOrder.ASC).setScroll(new TimeValue(60000)).setSize(50).execute().actionGet()
+      .setScroll(new TimeValue(60000)).setSize(50).execute().actionGet()
+    println("------------------++++------------Search Spend Time:" + (System.currentTimeMillis() - starttimes))
     println("-----Search hit total data:" + response.getHits.getTotalHits.toString)
     do {
       val rst = response.getHits.getHits.map(r =>
@@ -112,17 +114,21 @@ class Search {
 
       val gets = rst.map(r => new Get(r._1.getBytes)).toList
       val ids = rst.map(r => r._2)
+
       val starttime = System.currentTimeMillis()
       val resultHBase = searchHBase(gets)
       val resultRdeis = searchRedis(ids)
       joinResult(resultHBase, resultRdeis)
       println("------------------------------Search Spend Time:" + (System.currentTimeMillis() - starttime))
 
-      if (num >= 2) return
-      num += 1
+      print("Whether to return to the next batch Ｙ／Ｎ:")
+      var s: Scanner = new Scanner(System.in)
+      val flag = s.nextLine()
+      if (flag.equalsIgnoreCase("N")) {
+        return
+      }
       response = client.prepareSearchScroll(response.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet()
     } while (response.getHits.getHits.length != 0)
-    num = 0
     Search.returnEsConn(client)
     Search.returnHbaseConn(conn)
   }
@@ -268,8 +274,11 @@ class Search {
       "    }\n" +
       "  }"
     //执行查询语句
+    val starttimes = System.currentTimeMillis()
     var response: SearchResponse = request.setQuery(QueryBuilders.wrapperQuery(qu)).execute().actionGet()
+    println("------------------++++------------Search Spend Time:" + (System.currentTimeMillis() - starttimes))
     println("-----Search hit total data:" + response.getHits.getTotalHits.toString)
+
     val start = System.nanoTime()
     response.getHits.getTotalHits.toString
     println("------------------------------Search Spend Time:" + (System.nanoTime() - start) / 1000)
@@ -308,7 +317,7 @@ class Search {
       "  }"
     //执行查询语句
     val starttimes = System.currentTimeMillis()
-    var response: SearchResponse = request.setQuery(QueryBuilders.wrapperQuery(qu)).addSort("ResultTime", SortOrder.ASC).setSize(50)
+    var response: SearchResponse = request.setQuery(QueryBuilders.wrapperQuery(qu)).setSize(50)
       .setScroll(new TimeValue(60000)).execute().actionGet()
     println("------------------++++------------Search Spend Time:" + (System.currentTimeMillis() - starttimes))
     println("-----Search hit total data:" + response.getHits.getTotalHits.toString)
@@ -321,12 +330,15 @@ class Search {
         val dataSource = searchRedis(DATASOURCE, rs.getSource.get("dataSourceId").toString)
         println(task)
       }
-      if (num >= 2) return
-      num += 1
       println("------------------------------Search Spend Time:" + (System.currentTimeMillis() - starttime))
+      print("Whether to return to the next batch Ｙ／Ｎ:")
+      var s: Scanner = new Scanner(System.in)
+      val flag = s.nextLine()
+      if (flag.equalsIgnoreCase("N")) {
+        return
+      }
       response = client.prepareSearchScroll(response.getScrollId).setScroll(new TimeValue(60000)).execute().actionGet()
     } while (response.getHits.getHits.length != 0)
-    num = 0
     Search.returnEsConn(client)
   }
 }
